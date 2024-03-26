@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>百度地图 - 食品卡车位置展示</title>
+    <style type="text/css">
+        #container {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+    <!-- 引入百度地图API -->
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=GRh6LxPltwIAnt66mFuusrmytQCMLCCt"></script>
+    <script type="text/javascript">
+        // 替换为你的百度地图API密钥
+        var apiKey = 'GRh6LxPltwIAnt66mFuusrmytQCMLCCt';
+
+        function initMap() {
+            var map = new BMap.Map("container");
+            var centerPoint = new BMap.Point(116.404, 39.915); // 默认北京中心坐标，根据实际情况调整
+            map.centerAndZoom(centerPoint, 13);
+
+            fetch('/api/foodtrucks?cuisine=taco')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(foodTruck => {
+                        var marker = new BMap.Marker(new BMap.Point(foodTruck.Longitude, foodTruck.Latitude));
+                        var infoWindow = new BMap.InfoWindow(
+                            `<div><h3>${foodTruck.Applicant}</h3><p>Cuisine: ${foodTruck.FoodItems}</p></div>`
+                        );
+                        marker.addEventListener('click', function() {
+                            this.openInfoWindow(infoWindow);
+                        });
+                        map.addOverlay(marker);
+                    });
+                });
+        }
+
+        // 当文档加载完成时加载百度地图API并初始化地图
+        document.addEventListener('DOMContentLoaded', function () {
+            window.onload = function(){
+                loadScript();
+            };
+
+            function loadScript() {
+                var script = document.createElement('script');
+                script.src = `http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js?key=${apiKey}`;
+                document.head.appendChild(script);
+
+                script.onload = function () {
+                    initMap();
+                };
+            }
+        });
+    </script>
+</head>
+<body>
+<div id="container"></div>
+</body>
+</html>
